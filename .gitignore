@@ -1,4 +1,25 @@
+# Data files
+data/
+
+# Virtual environments
 venv/
 myenv/
 .venv/
 .myenv/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# VS Code settings
+.vscode/
+
+# Environment variables
+.env
+
+# Streamlit config
+.streamlit/
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
