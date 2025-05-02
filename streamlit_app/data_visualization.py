@@ -97,7 +97,8 @@ def plot_stock_with_moving_averages_plotly(df, ticker):
         height=600
     )
 
-    fig.show()
+    #fig.show()
+    return fig
 
 def plot_candlestick_chart(df, ticker):
     """
@@ -134,7 +135,8 @@ def plot_candlestick_chart(df, ticker):
         height=600
     )
 
-    fig.show()
+    #fig.show()
+    return fig
 
 def prepare_stock_data(df, date=None):
     """
@@ -210,7 +212,8 @@ def show_gainers_chart(df, date=None):
         height=500
     )
 
-    fig.show()
+    #fig.show()
+    return fig
 
 def show_volume_chart(df, date=None):
     """
@@ -262,7 +265,8 @@ def show_volume_chart(df, date=None):
         height=500
     )
 
-    fig.show()
+    #fig.show()
+    return fig
 
 def show_price_range_chart(df, date=None):
     """
@@ -348,4 +352,5 @@ def show_price_range_chart(df, date=None):
         showlegend=False
     )
 
-    fig.show()
+    #fig.show()
+    return fig
