@@ -37,6 +37,37 @@ def clean_financial_data(yahoo_df):
 
     return df_tidy
 
+def feature_engineering_financial(financial_df):
+    # Calculate Moving Averages (SMA and EMA)
+    financial_df['SMA_50'] = financial_df['Close'].rolling(window=50).mean()
+    financial_df['SMA_200'] = financial_df['Close'].rolling(window=200).mean()
+    financial_df['EMA_50'] = financial_df['Close'].ewm(span=50, adjust=False).mean()
+    financial_df['EMA_200'] = financial_df['Close'].ewm(span=200, adjust=False).mean()
+
+    # Calculate Daily Percentage Change (Price Change)
+    financial_df['Price_Change'] = financial_df['Close'].pct_change()
+
+    # Calculate Volatility (Rolling Standard Deviation of Daily Percentage Change)
+    financial_df['Volatility'] = financial_df['Price_Change'].rolling(window=20).std()
+
+    # Calculate RSI (Relative Strength Index)
+    rsi = RSIIndicator(financial_df['Close'], window=14)
+    financial_df['RSI'] = rsi.rsi()
+
+    # Calculate Bollinger Bands
+    bollinger = BollingerBands(financial_df['Close'], window=20, window_dev=2)
+    financial_df['Bollinger_Upper'] = bollinger.bollinger_hband()
+    financial_df['Bollinger_Lower'] = bollinger.bollinger_lband()
+    financial_df['Bollinger_Mid'] = bollinger.bollinger_mavg()
+
+    # Forward fill missing values
+    df = financial_df.ffill()
+
+    # Apply backward fill for any remaining NaNs
+    df = df.bfill()
+
+    return df
+
 def clean_news_data(news_df):
     """
     Cleans the news dataset by handling missing values, formatting the date,
@@ -73,54 +104,6 @@ def clean_news_data(news_df):
     news_df = news_df.reset_index(drop=True)
 
     return news_df
-
-def merge_datasets(financial_data, news_data):
-    """
-    Merges financial data with news titles based on the 'Date' and 'Ticker' columns.
-
-    Parameters:
-    financial_data (DataFrame): The DataFrame containing the financial data (Date, Ticker, Close, etc.).
-    news_data (DataFrame): The DataFrame containing the news data (Date, Ticker, Title).
-
-    Returns:
-    DataFrame: A new DataFrame with the merged data.
-    """
-    # Merge the two datasets on 'Date' and 'Ticker'
-    merged_data = pd.merge(financial_data, news_data, how='left', on=['Date', 'Ticker'])
-
-    return merged_data
-
-def feature_engineering_financial(financial_df):
-    # Calculate Moving Averages (SMA and EMA)
-    financial_df['SMA_50'] = financial_df['Close'].rolling(window=50).mean()
-    financial_df['SMA_200'] = financial_df['Close'].rolling(window=200).mean()
-    financial_df['EMA_50'] = financial_df['Close'].ewm(span=50, adjust=False).mean()
-    financial_df['EMA_200'] = financial_df['Close'].ewm(span=200, adjust=False).mean()
-
-    # Calculate Daily Percentage Change (Price Change)
-    financial_df['Price_Change'] = financial_df['Close'].pct_change()
-
-    # Calculate Volatility (Rolling Standard Deviation of Daily Percentage Change)
-    financial_df['Volatility'] = financial_df['Price_Change'].rolling(window=20).std()
-
-    # Calculate RSI (Relative Strength Index)
-    rsi = RSIIndicator(financial_df['Close'], window=14)
-    financial_df['RSI'] = rsi.rsi()
-
-    # Calculate Bollinger Bands
-    bollinger = BollingerBands(financial_df['Close'], window=20, window_dev=2)
-    financial_df['Bollinger_Upper'] = bollinger.bollinger_hband()
-    financial_df['Bollinger_Lower'] = bollinger.bollinger_lband()
-    financial_df['Bollinger_Mid'] = bollinger.bollinger_mavg()
-
-
-    # Forward fill missing values
-    df = financial_df.ffill()
-
-    # Apply backward fill for any remaining NaNs
-    df = df.bfill()
-
-    return df
 
 # Preprocess text: Tokenize, remove stopwords, and clean text
 def preprocess_text(text):
@@ -178,3 +161,19 @@ def preprocess_news_data(news_df):
     news_df = news_df.reset_index(drop=True)
 
     return news_df
+
+def merge_datasets(financial_data, news_data):
+    """
+    Merges financial data with news titles based on the 'Date' and 'Ticker' columns.
+
+    Parameters:
+    financial_data (DataFrame): The DataFrame containing the financial data (Date, Ticker, Close, etc.).
+    news_data (DataFrame): The DataFrame containing the news data (Date, Ticker, Title).
+
+    Returns:
+    DataFrame: A new DataFrame with the merged data.
+    """
+    # Merge the two datasets on 'Date' and 'Ticker'
+    merged_data = pd.merge(financial_data, news_data, how='left', on=['Date', 'Ticker'])
+
+    return merged_data
