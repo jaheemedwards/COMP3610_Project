@@ -354,3 +354,63 @@ def show_price_range_chart(df, date=None):
 
     #fig.show()
     return fig
+
+def plot_sentiment_label_bar_chart(df, ticker):
+    filtered_df = df[df['Ticker'] == ticker]
+    sentiment_counts = filtered_df['Sentiment_Label'].value_counts().reset_index()
+    sentiment_counts.columns = ['Sentiment_Label', 'Count']
+
+    fig = px.bar(sentiment_counts, x='Sentiment_Label', y='Count',
+                 color='Sentiment_Label',
+                 title=f'Sentiment Label Count for {ticker}',
+                 text='Count')
+    fig.update_traces(textposition='outside')
+    fig.update_layout(showlegend=False, xaxis_title='Sentiment Label', yaxis_title='Count')
+    #fig.show()
+    return fig
+
+def plot_sentiment_over_time(df, ticker):
+    filtered = df[df['Ticker'] == ticker]
+    fig = px.line(filtered, x='Date', y='Sentiment', color='Sentiment_Label',
+                  title=f'Sentiment Over Time for {ticker}')
+    #fig.show()
+    return fig
+
+def plot_sentiment_by_day(df, ticker):
+    filtered = df[df['Ticker'] == ticker]
+    fig = px.box(filtered, x='Day_of_Week', y='Sentiment', color='Sentiment_Label',
+                 title=f'Sentiment Distribution by Day of Week for {ticker}')
+    #fig.show()
+    return fig
+
+def plot_top_positive_keywords(df, ticker, top_n=10):
+    filtered = df[(df['Ticker'] == ticker) & (df['Sentiment_Label'] == 'Positive')]
+    
+    # Adjust the column range if your keyword columns are different
+    keyword_cols = df.columns[4:-5]
+    
+    keyword_means = filtered[keyword_cols].mean().sort_values(ascending=False).head(top_n)
+    
+    fig = px.bar(x=keyword_means.index, y=keyword_means.values,
+                 title=f'Top {top_n} Keywords in Positive Articles for {ticker}',
+                 labels={'x': 'Keyword', 'y': 'Average Score'})
+    #fig.show()
+    return fig
+
+def plot_monthly_avg_sentiment(df, ticker):
+    filtered = df[df['Ticker'] == ticker].copy()
+    filtered['Month_Year'] = filtered['Date'].astype(str).str[:7]
+    monthly_avg = filtered.groupby('Month_Year')['Sentiment'].mean().reset_index()
+    
+    fig = px.line(monthly_avg, x='Month_Year', y='Sentiment',
+                  title=f'Monthly Average Sentiment for {ticker}')
+    #fig.show()
+    return fig
+
+# Example usage (uncomment and update with your data and desired ticker)
+# df = pd.read_csv("your_data.csv")
+# plot_sentiment_over_time(df, 'AAPL')
+# plot_sentiment_by_day(df, 'AAPL')
+# plot_top_positive_keywords(df, 'AAPL')
+# plot_sentiment_label_count(df, 'AAPL')
+# plot_monthly_avg_sentiment(df, 'AAPL')
