@@ -1,17 +1,4 @@
-import pandas as pd
-import numpy as np
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.model_selection import train_test_split
-from xgboost import XGBClassifier
-from sklearn.metrics import classification_report, confusion_matrix
-import joblib
-import seaborn as sns
-import matplotlib.pyplot as plt
-import os
-import time
-from sklearn.preprocessing import OneHotEncoder
-from sklearn.compose import ColumnTransformer
-from sklearn.pipeline import Pipeline
+from streamlit_app.project_utils import *
 
 # Directories for saving
 models_dir = "models"

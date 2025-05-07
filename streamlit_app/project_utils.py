@@ -38,5 +38,34 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 import time
 
+import pandas as pd
+import numpy as np
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.model_selection import train_test_split
+from xgboost import XGBClassifier
+from sklearn.metrics import classification_report, confusion_matrix
+import joblib
+import seaborn as sns
+import matplotlib.pyplot as plt
+import os
+import time
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+
+import sys
+import os
+import time
+import joblib
+import pandas as pd
+import numpy as np
+import plotly.graph_objects as go
+import matplotlib.pyplot as plt
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, r2_score
+
 nltk.download('stopwords')
 nltk.download('punkt')
