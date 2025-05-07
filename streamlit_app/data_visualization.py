@@ -414,3 +414,111 @@ def plot_monthly_avg_sentiment(df, ticker):
 # plot_top_positive_keywords(df, 'AAPL')
 # plot_sentiment_label_count(df, 'AAPL')
 # plot_monthly_avg_sentiment(df, 'AAPL')
+
+import plotly.graph_objects as go
+
+import plotly.graph_objects as go
+
+def create_prediction_plot(latest_data, selected_ticker, enable_scrollbar=True):
+    """
+    Create a Plotly figure showing actual vs predicted stock prices.
+
+    Parameters:
+    - latest_data: pd.DataFrame with 'Date', 'Close', 'RF_Prediction', 'LR_Prediction' columns
+    - selected_ticker: str, the stock ticker symbol
+    - enable_scrollbar: bool, whether to show a scrollable x-axis (rangeslider)
+
+    Returns:
+    - fig: Plotly figure object
+    """
+    fig = go.Figure()
+
+    # Actual Closing Price
+    fig.add_trace(go.Scatter(
+        x=latest_data['Date'],
+        y=latest_data['Close'],
+        mode='lines',
+        name='Actual Close',
+        line=dict(color='deepskyblue', width=1.5)
+    ))
+
+    # Random Forest Prediction
+    fig.add_trace(go.Scatter(
+        x=latest_data['Date'],
+        y=latest_data['RF_Prediction'],
+        mode='lines',
+        name='Random Forest Prediction',
+        line=dict(color='tomato', width=1.5, dash='dash')
+    ))
+
+    # Linear Regression Prediction
+    fig.add_trace(go.Scatter(
+        x=latest_data['Date'],
+        y=latest_data['LR_Prediction'],
+        mode='lines',
+        name='Linear Regression Prediction',
+        line=dict(color='limegreen', width=1.5, dash='dot')
+    ))
+
+    fig.update_layout(
+        title=dict(
+            text=f"📈 Stock Price Predictions vs Actual Closing Price for {selected_ticker}",
+            x=0.5,
+            xanchor='center',
+            font=dict(size=20)
+        ),
+        xaxis=dict(
+            title="Date",
+            tickfont=dict(size=12),
+            rangeslider=dict(visible=enable_scrollbar),
+            type='date'
+        ),
+        yaxis=dict(
+            title="Price (USD)",
+            tickfont=dict(size=12)
+        ),
+        legend=dict(
+            title="",
+            font=dict(size=12),
+            orientation="h",
+            yanchor="bottom",
+            y=1.02,
+            xanchor="right",
+            x=1
+        ),
+        margin=dict(l=40, r=40, t=80, b=40),
+        height=600,
+        template="plotly_dark"
+    )
+
+    return fig
+
+import plotly.graph_objects as go
+
+def plot_prediction_confidence(prediction_prob):
+    """Plot a bar chart showing prediction confidence with a transparent background and muted colors"""
+    labels = ['Down', 'Up']
+    colors = ['#E3B505', '#FF7F50']  # muted yellow and coral
+
+    # Create the bar chart with Plotly
+    fig = go.Figure(data=[go.Bar(
+        x=labels, 
+        y=prediction_prob, 
+        marker=dict(color=colors)
+    )])
+
+    # Customize layout for transparent background
+    fig.update_layout(
+        title="Prediction Confidence",
+        title_font=dict(color='white'),
+        xaxis=dict(title='Sentiment', title_font=dict(color='white'), tickfont=dict(color='white')),
+        yaxis=dict(title='Probability', title_font=dict(color='white'), tickfont=dict(color='white'), range=[0, 1]),
+        plot_bgcolor='rgba(0,0,0,0)',  # Transparent background
+        paper_bgcolor='rgba(0,0,0,0)',
+        font=dict(color='white')
+    )
+
+    return fig
+
+
+
