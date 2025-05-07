@@ -37,36 +37,46 @@ def clean_financial_data(yahoo_df):
 
     return df_tidy
 
-def feature_engineering_financial(financial_df):
-    # Calculate Moving Averages (SMA and EMA)
-    financial_df['SMA_50'] = financial_df['Close'].rolling(window=50).mean()
-    financial_df['SMA_200'] = financial_df['Close'].rolling(window=200).mean()
-    financial_df['EMA_50'] = financial_df['Close'].ewm(span=50, adjust=False).mean()
-    financial_df['EMA_200'] = financial_df['Close'].ewm(span=200, adjust=False).mean()
+def feature_engineering_financial(financial_df, include_advanced_features=True):
+    """
+    Perform feature engineering on financial data.
 
-    # Calculate Daily Percentage Change (Price Change)
-    financial_df['Price_Change'] = financial_df['Close'].pct_change()
+    Parameters:
+    - financial_df: DataFrame containing the financial data.
+    - include_advanced_features: Boolean flag to include advanced features like SMA, EMA, RSI, etc.
 
-    # Calculate Volatility (Rolling Standard Deviation of Daily Percentage Change)
-    financial_df['Volatility'] = financial_df['Price_Change'].rolling(window=20).std()
+    Returns:
+    - A DataFrame with additional features.
+    """
+    # Basic feature set (Open, High, Low, Close, Volume)
+    financial_df['Price_Change'] = financial_df['Close'].pct_change()  # Daily percentage change
+    financial_df['Volatility'] = financial_df['Price_Change'].rolling(window=20).std()  # Rolling volatility (std dev of price change)
 
-    # Calculate RSI (Relative Strength Index)
-    rsi = RSIIndicator(financial_df['Close'], window=14)
-    financial_df['RSI'] = rsi.rsi()
+    if include_advanced_features:
+        # Calculate Moving Averages (SMA and EMA)
+        financial_df['SMA_50'] = financial_df['Close'].rolling(window=50).mean()
+        financial_df['SMA_200'] = financial_df['Close'].rolling(window=200).mean()
+        financial_df['EMA_50'] = financial_df['Close'].ewm(span=50, adjust=False).mean()
+        financial_df['EMA_200'] = financial_df['Close'].ewm(span=200, adjust=False).mean()
 
-    # Calculate Bollinger Bands
-    bollinger = BollingerBands(financial_df['Close'], window=20, window_dev=2)
-    financial_df['Bollinger_Upper'] = bollinger.bollinger_hband()
-    financial_df['Bollinger_Lower'] = bollinger.bollinger_lband()
-    financial_df['Bollinger_Mid'] = bollinger.bollinger_mavg()
+        # Calculate RSI (Relative Strength Index)
+        rsi = RSIIndicator(financial_df['Close'], window=14)
+        financial_df['RSI'] = rsi.rsi()
+
+        # Calculate Bollinger Bands
+        bollinger = BollingerBands(financial_df['Close'], window=20, window_dev=2)
+        financial_df['Bollinger_Upper'] = bollinger.bollinger_hband()
+        financial_df['Bollinger_Lower'] = bollinger.bollinger_lband()
+        financial_df['Bollinger_Mid'] = bollinger.bollinger_mavg()
 
     # Forward fill missing values
-    df = financial_df.ffill()
+    financial_df = financial_df.ffill()
 
     # Apply backward fill for any remaining NaNs
-    df = df.bfill()
+    financial_df = financial_df.bfill()
 
-    return df
+    return financial_df
+
 
 def clean_news_data(news_df):
     """
