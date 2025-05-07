@@ -11,13 +11,13 @@ def page_home():
 
     st.markdown("""
     This application allows you to:
-    - 📈 **Analyze financial data** of S&P 500 companies.
-    - 📰 **Review financial news and sentiment analysis**.
-    - 🕵️‍♂️ **Explore stock performance**, volume trends, and price movements.
+    - 📈 *Analyze financial data* of S&P 500 companies.
+    - 📰 *Review financial news and sentiment analysis*.
+    - 🕵‍♂ *Explore stock performance*, volume trends, and price movements.
 
     Use the tabs at the top to navigate between:
-    - **Financial Data**: Select a stock to view detailed visualizations or see general market trends.
-    - **News & Sentiment**: Read recent news headlines and view the associated sentiment score.
+    - *Financial Data*: Select a stock to view detailed visualizations or see general market trends.
+    - *News & Sentiment*: Read recent news headlines and view the associated sentiment score.
     """)
 
     st.success("Get started by selecting a tab above!")
@@ -110,45 +110,86 @@ def page_news(df, tickers):
     st.plotly_chart(monthly_avg_fig)
 
 
-def page_financial_and_news(df, tickers):
+
+
+def page_predictions(news_financial_df, financial_df, tickers, rf_model, lr_model, xgb_updown_model, scaler_rf_lr):
     st.title("📈 Financial and News Data")
     st.write("Financial and News Headlines Sentiment Analysis.")
 
-    # Ensure 'Date' is in datetime format
-    df['Date'] = pd.to_datetime(df['Date'])
-
-    # ✅ Fix: Add a unique key to prevent duplicate element ID error
+    # Select a ticker from the dropdown list
     selected_ticker = st.selectbox(
         "Select a Ticker",
         sorted(tickers),
         key="financial_news_ticker_selectbox"
     )
 
-    # 1. Sentiment Analysis
-    st.header("🧠 Sentiment Analysis")
-    df = analyze_sentiment(df)
-    sentiment_counts = df[df['Ticker'] == selected_ticker]['Sentiment_Label'].value_counts().reset_index()
-    sentiment_counts.columns = ['Sentiment_Label', 'Count']
-    fig1 = px.bar(sentiment_counts, x='Sentiment_Label', y='Count', color='Sentiment_Label',
-                  title=f'Sentiment Distribution for {selected_ticker}', text='Count')
-    fig1.update_traces(textposition='outside')
-    fig1.update_layout(showlegend=False)
-    st.plotly_chart(fig1)
+    # Predict Closing Price Section
+    st.header("📉 Predict Closing Price")
 
-    # 2. Price Movement Analysis
-    st.header("📈 Price Movement Around News Events")
-    price_df = analyze_price_movement(df)
-    st.dataframe(price_df[price_df['Ticker'] == selected_ticker].sort_values('Date', ascending=False))
+    filtered_df = financial_df[financial_df['Ticker'] == selected_ticker]
 
-    # 3. Stock Indicators
-    st.header("📊 Stock Performance Indicators")
-    indicators_df = calculate_stock_indicators(df)
-    st.dataframe(indicators_df[indicators_df['Ticker'] == selected_ticker].sort_values('Date', ascending=False))
+    # Apply feature engineering only on this subset
+    financial_preprocessed_df = feature_engineering_financial(filtered_df, False)
+    X_rf_lr = financial_preprocessed_df.drop(columns=['Date', 'Ticker', 'Close'])  # Features
+    
+    X_to_predict_scaled = scaler_rf_lr.transform(X_rf_lr)
+    y_pred_rf = rf_model.predict(X_to_predict_scaled)
+    y_pred_lr = lr_model.predict(X_to_predict_scaled)
 
-    # 4. News Event Visualization
-    st.header("🗞️ News on Price Chart")
-    fig5 = visualize_news_on_price(df, selected_ticker)
-    st.plotly_chart(fig5)
+    final_df = financial_preprocessed_df.copy()
+
+    # Add predictions to the latest data
+    final_df['RF_Prediction'] = y_pred_rf
+    final_df['LR_Prediction'] = y_pred_lr
+
+    # Plot Actual Closing Price, RF Prediction, and LR Prediction
+    st.subheader(f"Actual Closing Price vs Predictions for {selected_ticker}")
+    prediction_chart = create_prediction_plot(final_df, selected_ticker)
+    st.plotly_chart(prediction_chart)
+
+    # Display predictions for the most recent day
+    st.subheader("Predicted Close Prices (most recent day)")
+    st.write(f"📘 *Random Forest Prediction:* ${y_pred_rf[-1]:.2f}")
+    st.write(f"📙 *Linear Regression Prediction:* ${y_pred_lr[-1]:.2f}")
+    
+    # # Display UpDown Prediction (stock movement direction using XGBoost pipeline)
+    # xgb_updown_pred = xgb_updown_model.predict(features_xgb_updown)[0]  # Predict using UpDown model (XGBoost pipeline)
+    # if xgb_updown_pred == 1:
+    #     st.write(f"📊 *XGBoost UpDown Prediction:* Stock will go *Up*")
+    # else:
+    #     st.write(f"📊 *XGBoost UpDown Prediction:* Stock will go *Down*")
+
+
+    # Optional: Sentiment Analysis and Price Movement (currently commented out)
+    # Uncomment the sections below if needed, making sure they reference the correct dataframes (news_financial_df, financial_df)
+    
+    # Sentiment Analysis Section (e.g., analyze_sentiment function should be defined elsewhere)
+    # st.header("🧠 Sentiment Analysis")
+    # news_financial_df = analyze_sentiment(news_financial_df)
+    # sentiment_counts = news_financial_df[news_financial_df['Ticker'] == selected_ticker]['Sentiment_Label'].value_counts().reset_index()
+    # sentiment_counts.columns = ['Sentiment_Label', 'Count']
+    # fig1 = px.bar(sentiment_counts, x='Sentiment_Label', y='Count', color='Sentiment_Label',
+    #               title=f'Sentiment Distribution for {selected_ticker}', text='Count')
+    # fig1.update_traces(textposition='outside')
+    # fig1.update_layout(showlegend=False)
+    # st.plotly_chart(fig1)
+
+    # Price Movement Section (e.g., analyze_price_movement function should be defined elsewhere)
+    # st.header("📈 Price Movement Around News Events")
+    # price_df = analyze_price_movement(news_financial_df)
+    # st.dataframe(price_df[price_df['Ticker'] == selected_ticker].sort_values('Date', ascending=False))
+
+    # Stock Indicators Section (e.g., calculate_stock_indicators function should be defined elsewhere)
+    # st.header("📊 Stock Performance Indicators")
+    # indicators_df = calculate_stock_indicators(financial_df)
+    # st.dataframe(indicators_df[indicators_df['Ticker'] == selected_ticker].sort_values('Date', ascending=False))
+
+    # News Event Visualization Section (e.g., visualize_news_on_price function should be defined elsewhere)
+    # st.header("🗞 News on Price Chart")
+    # fig5 = visualize_news_on_price(news_financial_df, selected_ticker)
+    # st.plotly_chart(fig5)
+
+
 
 @st.cache_data
 def load_data():
@@ -157,25 +198,53 @@ def load_data():
     sp500_tickers = get_sp500_tickers()
 
     # 2. Fetch financial data and clean it
-    yahoo_df = fetch_yahoo_data(sp500_tickers, start_date, end_date)
-    financial_cleaned_data = clean_financial_data(yahoo_df)
+    #yahoo_df = fetch_yahoo_data(sp500_tickers, start_date, end_date)
+    #financial_cleaned_data = clean_financial_data(yahoo_df)
+    financial_cleaned_data = pd.read_csv('C:/Users/18684/OneDrive/Desktop/COMP3610_Project/data/financial_data.csv')
 
     # 3. Load pre-cleaned news data and preprocess it
-    preprocessed_news = pd.read_csv("preprocessed_news.csv", parse_dates=["Date"])
+    preprocessed_news = pd.read_csv("streamlit_app\preprocessed_news.csv", parse_dates=["Date"])
 
-    financial_and_news_data = pd.read_csv("financial_and_news_merged.csv", parse_dates=["Date"])
+    financial_and_news_data = pd.read_csv("streamlit_app/financial_and_news_merged.csv", parse_dates=["Date"])
 
     return sp500_tickers, financial_cleaned_data, preprocessed_news, financial_and_news_data
+
+# Cache the loading of models to optimize performance
+@st.cache_resource
+def load_models():
+    # Define paths to your models
+    model_dir = "streamlit_app/models"
+    rf_model_path = os.path.join(model_dir, 'random_forest_model.pkl')
+    lr_model_path = os.path.join(model_dir, 'linear_regression_model.pkl')
+    xgb_updown_model_path = os.path.join(model_dir, 'xgb_updown_model.joblib')
+    scaler_path = os.path.join(model_dir, 'scaler.pkl')
+
+    # Load models and scaler
+    rf_model = joblib.load(rf_model_path)
+    lr_model = joblib.load(lr_model_path)
+    xgb_updown_model = joblib.load(xgb_updown_model_path)
+    scaler = joblib.load(scaler_path)
+
+    # Return models and scaler
+    return rf_model, lr_model, xgb_updown_model, scaler
 
 # === Set Date Range ===
 start_date = '2010-01-01'
 end_date = datetime.now().strftime("%Y-%m-%d")
 
-# Load cached data
-sp500_tickers, financial_df, news_df, financial_and_news_df = load_data()
+# # Load cached data
+# sp500_tickers, financial_df, news_df, financial_and_news_df = load_data()
+# rf_model, lr_model, xgb_updown_model, scaler = load_models()
+
+with st.spinner("Loading data and models..."):
+    sp500_tickers, financial_df, news_df, financial_and_news_df = load_data()
+    rf_model, lr_model, xgb_updown_model, scaler = load_models()
+st.success("Data and models loaded successfully!")
+
+
 
 #Page selector
-tab1, tab2, tab3, tab4 = st.tabs(["Home", "Financial Data", "News & Sentiment", "Financial and News Headlines"])
+tab1, tab2, tab3, tab4 = st.tabs(["Home", "Financial Data", "News & Sentiment", "Predictions"])
 
 with tab1:
     page_home()
@@ -184,4 +253,4 @@ with tab2:
 with tab3:
     page_news(news_df, sp500_tickers)
 with tab4:
-    page_financial_and_news(financial_and_news_df, sp500_tickers)
+    page_predictions(financial_and_news_df, financial_df, sp500_tickers, rf_model, lr_model, xgb_updown_model, scaler)
