@@ -1,0 +1,51 @@
+Loading financial dataset...
+Loaded financial dataset successfully.
+First few rows of raw data:
+         Date Ticker      Close       High        Low       Open       Volume
+0  2010-01-04      A  19.973593  20.184177  19.865109  20.031024    3815561.0
+1  2010-01-04   AAPL   6.440332   6.455078   6.391279   6.422878  493729600.0
+2  2010-01-04    ABT  18.579691  18.613808  18.395463  18.487578   10829095.0
+3  2010-01-04   ACGL   7.601905   7.628319   7.580774   7.587114    4813200.0
+4  2010-01-04    ACN  31.649673  31.747475  31.220857  31.235904    3650100.0
+
+Starting feature engineering and preprocessing...
+Preprocessing complete. Time taken: 0.61 seconds.
+First few rows of preprocessed data:
+         Date Ticker      Close       High        Low       Open       Volume  Price_Change  Volatility
+0  2010-01-04      A  19.973593  20.184177  19.865109  20.031024    3815561.0     -0.677558    0.905634
+1  2010-01-04   AAPL   6.440332   6.455078   6.391279   6.422878  493729600.0     -0.677558    0.905634
+2  2010-01-04    ABT  18.579691  18.613808  18.395463  18.487578   10829095.0      1.884896    0.905634
+3  2010-01-04   ACGL   7.601905   7.628319   7.580774   7.587114    4813200.0     -0.590849    0.905634
+4  2010-01-04    ACN  31.649673  31.747475  31.220857  31.235904    3650100.0      3.163387    0.905634
+
+Preparing feature matrix X and target vector y...
+Feature columns: ['High', 'Low', 'Open', 'Volume', 'Price_Change', 'Volatility']
+Number of samples: 1836992
+
+Splitting dataset into training and test sets (80/20)...
+Training set size: 1469593, Test set size: 367399
+
+Scaling features using StandardScaler...
+Feature scaling complete. Time taken: 0.17 seconds.
+
+Training optimized Random Forest model (n_estimators=50, max_depth=12, min_samples_leaf=5)...
+Optimized Random Forest training complete. Time taken: 48.97 seconds.
+
+Training Linear Regression model...
+Linear Regression training complete. Time taken: 0.15 seconds.
+
+Evaluating models...
+Evaluation complete. Time taken: 0.01 seconds.
+
+📊 Random Forest - MSE: 4.80, R²: 1.00
+📊 Linear Regression - MSE: 3.34, R²: 1.00
+
+Saving models and scaler to 'models/' directory with compression...
+✅ Models and scaler saved successfully in the 'models/' folder with compression.
+
+Plotting feature importances...
+
+Plotting Actual vs Predicted values...
+✅ Figures saved as 'random_forest_feature_importances.png' and 'actual_vs_predicted_values.png'.
+
+✅ Total script runtime: 53.07 seconds.
