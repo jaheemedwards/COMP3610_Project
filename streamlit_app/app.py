@@ -28,6 +28,9 @@ def page_home():
         use_container_width=True  # Updated parameter
     )
 
+def page_model_and_methodology():
+    pass
+
 def page_financial(df, tickers, start_date, end_date):
     st.title("📈 Financial Data")
 
@@ -109,12 +112,24 @@ def page_news(df, tickers):
     monthly_avg_fig = plot_monthly_avg_sentiment(df, selected_ticker)
     st.plotly_chart(monthly_avg_fig)
 
-
+def make_prediction_with_insights(news_title, selected_ticker, xgb_updown_model):
+    # Step 1: Prepare the input data
+    data = pd.DataFrame({'Title': [news_title], 'Ticker': [selected_ticker]})
+    
+    # Step 2: Get prediction and prediction probabilities from the model
+    prediction = xgb_updown_model.predict(data)[0]
+    prediction_prob = xgb_updown_model.predict_proba(data)[0]
+    
+    # Step 3: Determine the prediction result and confidence level
+    prediction_text = "Stock will go *Up*" if prediction == 1 else "Stock will go *Down*"
+    confidence = max(prediction_prob) * 100  # Confidence as a percentage
+    
+    return prediction_text, confidence, prediction_prob
 
 
 def page_predictions(news_financial_df, financial_df, tickers, rf_model, lr_model, xgb_updown_model, scaler_rf_lr):
     st.title("📈 Financial and News Data")
-    st.write("Financial and News Headlines Sentiment Analysis.")
+    st.write("Financial and News Headlines Sentiment Analysis with Predictions.")
 
     # Select a ticker from the dropdown list
     selected_ticker = st.selectbox(
@@ -122,6 +137,31 @@ def page_predictions(news_financial_df, financial_df, tickers, rf_model, lr_mode
         sorted(tickers),
         key="financial_news_ticker_selectbox"
     )
+
+    st.header("Stock Movement Prediction from News")
+
+    # Input for news article title
+    news_title = st.text_input("Enter News Article Title")
+
+    # When the user inputs both the news article and selects a stock, make the prediction
+    if news_title and selected_ticker:
+        # Get prediction and confidence level
+        prediction_text, confidence, prediction_prob = make_prediction_with_insights(news_title, selected_ticker, xgb_updown_model)
+        
+        # Display prediction and confidence level
+        st.write(f"📊 *XGBoost UpDown Prediction:* {prediction_text}")
+        st.write(f"🔮 *Confidence Level:* {confidence:.2f}%")
+
+        # Plot the prediction confidence
+        st.write("📈 *Prediction Probability Distribution*")
+        fig = plot_prediction_confidence(prediction_prob)
+        st.plotly_chart(fig)
+        
+        # Add insight based on the prediction
+        if prediction_text == "Stock will go *Up*":
+            st.write("🧐 Insight: This news article indicates a positive sentiment towards the stock, suggesting it may rise. This could be due to favorable financial news or a market trend.")
+        else:
+            st.write("🧐 Insight: The news article suggests a negative sentiment towards the stock, which could be linked to poor financial reports or market downturns.")
 
     # Predict Closing Price Section
     st.header("📉 Predict Closing Price")
@@ -151,13 +191,7 @@ def page_predictions(news_financial_df, financial_df, tickers, rf_model, lr_mode
     st.subheader("Predicted Close Prices (most recent day)")
     st.write(f"📘 *Random Forest Prediction:* ${y_pred_rf[-1]:.2f}")
     st.write(f"📙 *Linear Regression Prediction:* ${y_pred_lr[-1]:.2f}")
-    
-    # # Display UpDown Prediction (stock movement direction using XGBoost pipeline)
-    # xgb_updown_pred = xgb_updown_model.predict(features_xgb_updown)[0]  # Predict using UpDown model (XGBoost pipeline)
-    # if xgb_updown_pred == 1:
-    #     st.write(f"📊 *XGBoost UpDown Prediction:* Stock will go *Up*")
-    # else:
-    #     st.write(f"📊 *XGBoost UpDown Prediction:* Stock will go *Down*")
+
 
 
     # Optional: Sentiment Analysis and Price Movement (currently commented out)
@@ -232,9 +266,6 @@ def load_models():
 start_date = '2010-01-01'
 end_date = datetime.now().strftime("%Y-%m-%d")
 
-# # Load cached data
-# sp500_tickers, financial_df, news_df, financial_and_news_df = load_data()
-# rf_model, lr_model, xgb_updown_model, scaler = load_models()
 
 with st.spinner("Loading data and models..."):
     sp500_tickers, financial_df, news_df, financial_and_news_df = load_data()

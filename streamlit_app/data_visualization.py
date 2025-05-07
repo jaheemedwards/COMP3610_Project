@@ -493,5 +493,32 @@ def create_prediction_plot(latest_data, selected_ticker, enable_scrollbar=True):
 
     return fig
 
+import plotly.graph_objects as go
+
+def plot_prediction_confidence(prediction_prob):
+    """Plot a bar chart showing prediction confidence with a transparent background and muted colors"""
+    labels = ['Down', 'Up']
+    colors = ['#E3B505', '#FF7F50']  # muted yellow and coral
+
+    # Create the bar chart with Plotly
+    fig = go.Figure(data=[go.Bar(
+        x=labels, 
+        y=prediction_prob, 
+        marker=dict(color=colors)
+    )])
+
+    # Customize layout for transparent background
+    fig.update_layout(
+        title="Prediction Confidence",
+        title_font=dict(color='white'),
+        xaxis=dict(title='Sentiment', title_font=dict(color='white'), tickfont=dict(color='white')),
+        yaxis=dict(title='Probability', title_font=dict(color='white'), tickfont=dict(color='white'), range=[0, 1]),
+        plot_bgcolor='rgba(0,0,0,0)',  # Transparent background
+        paper_bgcolor='rgba(0,0,0,0)',
+        font=dict(color='white')
+    )
+
+    return fig
+
 
 
