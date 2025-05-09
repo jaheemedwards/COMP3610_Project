@@ -36,10 +36,21 @@ def fetch_yahoo_data(tickers, start_date, end_date):
     """
     print("Fetching Yahoo Finance data...")
 
-    # Download data using yfinance
-    data = yf.download(tickers, start=start_date, end=end_date, group_by='ticker')
+    try:
+        # Download data using yfinance
+        data = yf.download(tickers, start=start_date, end=end_date, group_by='ticker')
 
-    print("Yahoo Finance data fetched successfully.")
+        # Check if data is fetched (not empty)
+        if not data.empty:
+            print("Yahoo Finance data fetched successfully.")
+        else:
+            print("No data found for the given tickers and date range.")
+            data = None
+
+    except Exception as e:
+        print(f"An error occurred while fetching Yahoo Finance data: {e}")
+        data = None
+
     return data
 
 
