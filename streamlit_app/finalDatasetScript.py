@@ -36,15 +36,6 @@ def calculate_stock_indicators(df):
     return df[['Date', 'Ticker', 'Close', 'Volatility', 'Daily Returns', 'Volume Change']]
 
 # -----------------------------------------------
-# 4. Candlestick Pattern Recognition
-# -----------------------------------------------
-# def identify_candlestick_patterns(df):
-#     df['Bullish Engulfing'] = talib.CDLENGULFING(df['Open'], df['High'], df['Low'], df['Close'])
-#     df['Bearish Engulfing'] = df['Bullish Engulfing'] * -1
-#     df['Doji'] = talib.CDLDOJI(df['Open'], df['High'], df['Low'], df['Close'])
-#     return df[['Date', 'Ticker', 'Bullish Engulfing', 'Bearish Engulfing', 'Doji']]
-
-# -----------------------------------------------
 # 4. Visualization of News Events on Stock Chart
 # -----------------------------------------------
 def visualize_news_on_price(df, ticker):
