@@ -415,9 +415,6 @@ def plot_monthly_avg_sentiment(df, ticker):
 # plot_sentiment_label_count(df, 'AAPL')
 # plot_monthly_avg_sentiment(df, 'AAPL')
 
-import plotly.graph_objects as go
-
-import plotly.graph_objects as go
 
 def create_prediction_plot(latest_data, selected_ticker, enable_scrollbar=True):
     """
@@ -493,7 +490,6 @@ def create_prediction_plot(latest_data, selected_ticker, enable_scrollbar=True):
 
     return fig
 
-import plotly.graph_objects as go
 
 def plot_prediction_confidence(prediction_prob):
     """Plot a bar chart showing prediction confidence with a transparent background and muted colors"""
@@ -519,6 +515,3 @@ def plot_prediction_confidence(prediction_prob):
     )
 
     return fig
-
-
-
