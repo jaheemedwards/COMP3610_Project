@@ -1,4 +1,3 @@
-# Import all necessary utilities from the project utilities module
 from project_utils import *
 
 def clean_financial_data(yahoo_df):
