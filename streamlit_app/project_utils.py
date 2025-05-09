@@ -3,13 +3,13 @@ import pandas as pd
 import yfinance as yf
 import requests
 from datetime import datetime
-import pandas_datareader.data as web
+#import pandas_datareader.data as web
 import matplotlib.pyplot as plt
 from textblob import TextBlob  # For sentiment analysis
 import plotly.express as px  # For interactive charts
 import plotly.graph_objects as go  # For more cutomization (candlestick plot)
 
-from tqdm import tqdm  # For progress bar
+#from tqdm import tqdm  # For progress bar
 import ssl
 from urllib.request import Request, urlopen
 from bs4 import BeautifulSoup

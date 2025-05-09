@@ -6,7 +6,7 @@ from data_cleaning_and_preprocessing import *
 from finalDatasetScript import *
 from PIL import Image
 
-st.set_page_config(page_title="📊 Model Performance and Methodology", layout="wide")
+st.set_page_config(page_title="📊 Stock Analysis App", layout="wide")
 
 def page_home():
     st.title("📊 Home Page")
@@ -403,7 +403,7 @@ def load_data():
     # 2. Fetch financial data and clean it
     #yahoo_df = fetch_yahoo_data(sp500_tickers, start_date, end_date)
     #financial_cleaned_data = clean_financial_data(yahoo_df)
-    financial_cleaned_data = pd.read_csv('C:/Users/18684/OneDrive/Desktop/COMP3610_Project/data/financial_data.csv')
+    financial_cleaned_data = pd.read_csv('C:/Users/18684\OneDrive/Desktop/comp3610_finalProject/COMP3610_Project/data/financial_data.csv')
 
     # 3. Load pre-cleaned news data and preprocess it
     preprocessed_news = pd.read_csv("streamlit_app\preprocessed_news.csv", parse_dates=["Date"])
