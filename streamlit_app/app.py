@@ -393,14 +393,20 @@ def page_predictions(news_financial_df, financial_df, tickers, rf_model, lr_mode
 
 # Cache the function so that data loading doesn't re-run unnecessarily
 @st.cache_data
-def load_data():
+def load_data(start_date=None, end_date=None):
     # 1. Load S&P 500 tickers from external source or API
     sp500_tickers = get_sp500_tickers()
 
     # 2. Load pre-cleaned financial data from yfinance or a CSV file
-    #yahoo_df = fetch_yahoo_data(sp500_tickers, start_date, end_date)
-    #financial_cleaned_data = clean_financial_data(yahoo_df)
-    financial_cleaned_data = pd.read_csv('C:/Users/18684/OneDrive/Desktop/comp3610_finalProject/COMP3610_Project/data/financial_data.csv')
+    yahoo_df = fetch_yahoo_data(sp500_tickers, start_date, end_date)
+    financial_cleaned_data = clean_financial_data(yahoo_df)
+    # If the function above is not downloading the data due to too many
+    # requests being made to yfinance then comment out the previous 2 
+    # lines (yahoo_df..., financial_cleaned_data...) and uncomment the 
+    # line below (financial_cleaned_data...) to run a previously saved
+    # CSV file.
+    
+    #financial_cleaned_data = pd.read_csv('C:/Users/18684/OneDrive/Desktop/comp3610_finalProject/COMP3610_Project/data/financial_data.csv')
 
     # 3. Load preprocessed news data with parsed dates
     preprocessed_news = pd.read_csv("streamlit_app/preprocessed_news.csv", parse_dates=["Date"])
@@ -438,7 +444,7 @@ end_date = datetime.now().strftime("%Y-%m-%d")  # Set end date to today's date
 
 # Load data and models with a loading spinner for better user experience
 with st.spinner("Loading data and models..."):
-    sp500_tickers, financial_df, news_df, financial_and_news_df = load_data()  # Load datasets
+    sp500_tickers, financial_df, news_df, financial_and_news_df = load_data(start_date, end_date)  # Load datasets
     rf_model, lr_model, xgb_updown_model, scaler = load_models()  # Load ML models and scaler
 st.success("Data and models loaded successfully!")  # Display success message
 
