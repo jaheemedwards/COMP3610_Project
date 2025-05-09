@@ -47,6 +47,7 @@ pip install -r requirements.txt
 
 # Run the Streamlit app
 streamlit run streamlit_app/app.py
+```
 
 ### Watch the demo:
 You can see the demo of the app in action here:  
