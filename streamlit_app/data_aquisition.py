@@ -1,39 +1,49 @@
 from project_utils import *
 
 from io import StringIO
+from stock_tickers import tickers
 
 def get_sp500_tickers():
     """
     Fetch the list of S&P 500 tickers from Wikipedia.
-
+    If fetching fails (e.g., due to no tables or blocked request),
+    return a fallback list of major S&P 500 tickers.
+    
     Returns:
         list: A list of cleaned S&P 500 ticker symbols.
     """
     url = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
     headers = {"User-Agent": "Mozilla/5.0"}  # mimic a browser
-    response = requests.get(url, headers=headers)
-    
-    if response.status_code != 200:
-        raise Exception(f"Failed to fetch page: status code {response.status_code}")
-    
-    # Use StringIO to avoid FutureWarning
-    html_io = StringIO(response.text)
-    
-    try:
-        tables = pd.read_html(html_io)
-    except ValueError:
-        raise ValueError("No tables found on the Wikipedia page. The page structure may have changed.")
-    
-    # The first table usually contains the S&P 500 tickers
-    sp500_table = tables[0]
-    tickers = sp500_table['Symbol'].tolist()
-    
-    # Replace special characters for compatibility (BRK.B → BRK-B)
-    tickers = [ticker.replace(".", "-") for ticker in tickers]
-    
-    print(f"Fetched {len(tickers)} S&P 500 tickers.")
-    return tickers
 
+    try:
+        response = requests.get(url, headers=headers, timeout=10)
+
+        # If Wikipedia is not reachable, trigger fallback
+        if response.status_code != 200:
+            raise Exception(f"Failed to fetch page: status code {response.status_code}")
+
+        # Use StringIO to avoid FutureWarning from Pandas
+        html_io = StringIO(response.text)
+        tables = pd.read_html(html_io)
+
+        # If no tables exist, fallback will trigger
+        sp500_table = tables[0]
+        tickers = sp500_table['Symbol'].tolist()
+
+        # Replace special characters for compatibility (BRK.B → BRK-B)
+        tickers = [ticker.replace(".", "-") for ticker in tickers]
+
+        print(f"✅ Fetched {len(tickers)} S&P 500 tickers from Wikipedia.")
+        return tickers
+
+    except Exception as e:
+        print(f"⚠️ Failed to fetch S&P 500 tickers from Wikipedia due to: {e}")
+        print("➡ Using fallback ticker list instead.")
+
+        # Fallback list (you can add more tickers if you want)
+        fallback_tickers = tickers
+        
+        return fallback_tickers
 
 
 
