@@ -42,8 +42,8 @@ def get_sp500_tickers():
 
         # Fallback list (you can add more tickers if you want)
         fallback_tickers = tickers
-        
         return fallback_tickers
+
 
 
 
