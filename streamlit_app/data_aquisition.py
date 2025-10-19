@@ -1,25 +1,40 @@
 from project_utils import *
 
+from io import StringIO
+
 def get_sp500_tickers():
     """
     Fetch the list of S&P 500 tickers from Wikipedia.
-    
+
     Returns:
         list: A list of cleaned S&P 500 ticker symbols.
     """
     url = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
-    response = requests.get(url)
-    tables = pd.read_html(response.text)
-
-    # The first table contains the S&P 500 tickers
+    headers = {"User-Agent": "Mozilla/5.0"}  # mimic a browser
+    response = requests.get(url, headers=headers)
+    
+    if response.status_code != 200:
+        raise Exception(f"Failed to fetch page: status code {response.status_code}")
+    
+    # Use StringIO to avoid FutureWarning
+    html_io = StringIO(response.text)
+    
+    try:
+        tables = pd.read_html(html_io)
+    except ValueError:
+        raise ValueError("No tables found on the Wikipedia page. The page structure may have changed.")
+    
+    # The first table usually contains the S&P 500 tickers
     sp500_table = tables[0]
     tickers = sp500_table['Symbol'].tolist()
-
-    # Replace special characters (e.g., BRK.B → BRK-B) for compatibility
+    
+    # Replace special characters for compatibility (BRK.B → BRK-B)
     tickers = [ticker.replace(".", "-") for ticker in tickers]
-
+    
     print(f"Fetched {len(tickers)} S&P 500 tickers.")
     return tickers
+
+
 
 
 def fetch_yahoo_data(tickers, start_date, end_date):

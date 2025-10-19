@@ -1,7 +1,7 @@
 # === Imports ===
-from project_utils import *
-from data_aquisition import *
-from data_cleaning_and_preprocessing import *
+from streamlit_app.project_utils import *
+from streamlit_app.data_aquisition import *
+from streamlit_app.data_cleaning_and_preprocessing import *
 
 # === Set Date Range ===
 start_date = '2010-01-01'
