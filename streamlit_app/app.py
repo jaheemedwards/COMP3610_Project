@@ -40,7 +40,7 @@ def page_home():
     st.image(
         "https://media.giphy.com/media/3oKIPtjElfqwMOTbH2/giphy.gif",
         caption="Let's analyze some stocks!",
-        use_container_width=True
+        width='stretch'
     )
 
 
@@ -242,7 +242,7 @@ def page_news(df, tickers):
         filtered_df[['Date', 'Title', 'Sentiment', 'Sentiment_Label']]
         .sort_values('Date', ascending=False)  # Sort by most recent
         .reset_index(drop=True),               # Reset index for clean display
-        use_container_width=True               # Use full width of container
+        width='stretch'               # Use full width of container
     )
 
     # Subheader for visual insights
