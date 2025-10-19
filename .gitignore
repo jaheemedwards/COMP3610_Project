@@ -2,6 +2,7 @@
 data/
 
 # Virtual environments
+env/
 venv/
 myenv/
 .venv/
